@@ -1,0 +1,14 @@
+#!/bin/bash
+
+FILE=null
+VERSION=0.0.1-SNAPSHOT
+while getopts f: option
+do
+case "${option}"
+in
+f) FILE=$OPTARG;;
+v) VERSION=$OPTARG;;
+esac
+done
+
+./mvnw package && java -jar target/${FILE}-${VERSION}.jar
