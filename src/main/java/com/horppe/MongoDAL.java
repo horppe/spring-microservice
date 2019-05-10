@@ -1,71 +1,47 @@
 package com.horppe;
 
-import org.bson.Document;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.CriteriaDefinition;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Component;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.mongodb.MongoClient;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
 import com.horppe.models.*;
+import com.horppe.repositories.*;
 
 @Component
 public class MongoDAL {
 	
 	@Autowired
-	public CustomerRepository repository;
+	public UserRepository userRepository;
+	
+	@Autowired
+	public LogRepository logRepository;
 
 	public MongoDAL() {
 		// TODO Auto-generated constructor stub
 		
 	}
 	
-	public void seed(String... args) {
-	//		// First remove data in collection MongoDAL
-		try {
-//			removeAll();
-			//	save a couple of customers
-			System.out.println("Printing Repo");
-			System.out.println(repository);
-//			repository.save(new Customer("Alice", "Smith"));
-//			repository.save(new Customer("Bob", "Smith"));
-//			System.out.println("Customers successfully added.");
-		} catch (Exception e) {
-			FirstSpringBootApplication.print("Error occured in seed");
-			System.out.println(e.getMessage());
-		}
-			
-	//
-	//		// fetch all customers
-	//		System.out.println("Customers found with findAll():");
-	//		System.out.println("-------------------------------");
-	//		for (Customer customer : repository.findAll()) {
-	//			System.out.println(customer);
-	//		}
-	//		System.out.println();
-	//
-	//		// fetch an individual customer
-	//		System.out.println("Customer found with findByFirstName('Alice'):");
-	//		System.out.println("--------------------------------");
-	//		System.out.println(repository.findByFirstName("Alice"));
-	//
-	//		System.out.println("Customers found with findByLastName('Smith'):");
-	//		System.out.println("--------------------------------");
-	//		for (Customer customer : repository.findByLastName("Smith")) {
-	//			System.out.println(customer);
-	//		}
-	
+	public void removeAll() {
+		userRepository.deleteAll();
+		logRepository.deleteAll();
+		
+	}
+	public void removeAllUsers() {
+		userRepository.deleteAll();		
 	}
 	
-	
-	
-	public void removeAll() {
-		repository.deleteAll();
-		
+	public void removeAllLogs() {
+		logRepository.deleteAll();
+	}
+	public void addUser(User user) {
+		userRepository.save(user);
+	}
+	public void addLog(Log log) {
+		logRepository.save(log);
 	}
 	
 	@Override

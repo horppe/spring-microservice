@@ -5,17 +5,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 
-import com.mongodb.MongoClient;
+import com.horppe.services.LoggerService;
+import com.horppe.services.SeederService;
+
 
 @SpringBootApplication 
 public class FirstSpringBootApplication implements ApplicationListener<ApplicationReadyEvent>{
 	
-	@Autowired
-	private MongoDAL mongoDal;
+	@Autowired SeederService seeder;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(FirstSpringBootApplication.class, args);
@@ -23,21 +21,10 @@ public class FirstSpringBootApplication implements ApplicationListener<Applicati
 	
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent event) {
-		// TODO Auto-generated method stub
-		print("Application is started");
-		print("Printing MongoDAL Object");
-		print(mongoDal.toString());
-		print("Clearing Mongo Documents");
-		// mongoDal.removeAll();
-		mongoDal.seed();
+		
+		System.out.println("Application Started");
+		
+		seeder.seedRandomUsersInDB(50);
+		seeder.seedLogsInDB(5);
 	}
-	
-	public static void print(String str, String fmt) {
-		System.out.println(String.format(fmt, str));
-	}
-	
-	public static void print(String str) {
-		System.out.println(str);
-	}
-
 }

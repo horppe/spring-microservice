@@ -1,14 +1,23 @@
 #!/bin/bash
 
-FILE=null
-VERSION=0.0.1-SNAPSHOT
-while getopts f: option
+# Get Version of the project
+pomVersions=`cat pom.xml | grep "version" | cut -d'>' -f2 | cut -d'<' -f1`
+arr=($pomVersions)
+VERSION=${arr[1]}
+
+# VERSION=0.0.1-SNAPSHOT
+
+#If version is specified, use it instead
+while getopts n: option
 do
 case "${option}"
 in
-f) FILE=$OPTARG;;
 v) VERSION=$OPTARG;;
 esac
 done
 
-./mvnw package && java -jar target/${FILE}-${VERSION}.jar
+# Get Name of the project
+NAME=`echo "${PWD##*/}"`
+
+# Package app with maven & Run jar with java
+./mvnw package && java -jar target/${NAME}-${VERSION}.jar
