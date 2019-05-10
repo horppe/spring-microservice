@@ -1,4 +1,4 @@
-package com.horppe;
+package com.horppe.services;
 
 import java.util.ArrayList;
 import java.util.List;

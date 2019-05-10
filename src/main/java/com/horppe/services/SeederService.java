@@ -1,13 +1,17 @@
 package com.horppe.services;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import com.horppe.MongoDAL;
 import com.horppe.models.Action;
 import com.horppe.models.Log;
 import com.horppe.models.Payload;
@@ -23,15 +27,20 @@ public class SeederService {
 	@Autowired 
 	LoggerService logger;
 	
+	@Autowired
+	PasswordEncoder encoder;
+	
 	List<String> firstNames = new ArrayList<String>();
 	List<String> lastNames = new ArrayList<String>();
 	List<String> userTypes = new ArrayList<String>();
 	List<Action> actions = new ArrayList<Action>();
 	List<User> users = new ArrayList<User>();
+	List<Log> logs = new ArrayList<Log>();
 	
 	public SeederService() {
 		super();
 		initialize();
+		
 	}
 	
 	
@@ -47,6 +56,7 @@ public class SeederService {
 		firstNames.add("Adewale");
 		firstNames.add("John");
 		firstNames.add("Stephen");
+		
 		
 		// Last names
 		lastNames.add("Smith");
@@ -89,6 +99,9 @@ public class SeederService {
 			
 			// Create a random user
 			User newUser = new User(fName, lName, fName.toLowerCase() + lName.toLowerCase() + "@gmail.com", uType);
+			
+			// Encode user password
+			newUser.setPassword(encoder.encode("randomPassword"));
 			try {
 				mongoDal.userRepository.save(newUser);
 			} 
@@ -100,6 +113,7 @@ public class SeederService {
 			}
 			users.add(newUser);
 		}
+		
 		logger.print("Users added to db");
 		logger.print(users);
 		
@@ -112,18 +126,67 @@ public class SeederService {
 		
 		// TODO Handle charges action payload parsing with respect to user types and action types
 		users.forEach((user) -> {
+			
 			for(int i = 0; i < userLogs; i++) {
 				Log newLog = new Log();
+				Date logDate;
+				
+				if(i > 0 && i < 10) {
+					logDate = getDateFromString("0"+ i +"/27/2015");
+				} else if ( i >= 10 && i < 20) {
+					logDate = getDateFromString("09/" + i + "/2015");
+				} else if (i > 20 && i < 30){
+					logDate = getDateFromString(i + "/15/2015");
+				} else {
+					logDate = getDateFromString("04/06/2015");
+				}
+				
 				newLog.setAction(getRandomAction());
 				newLog.setPayload(getActionPayload(newLog.getAction(), user));
 				newLog.setUser(user);
+				newLog.setCreatedAt(logDate);
 				mongoDal.logRepository.save(newLog);
+				logs.add(newLog);
 			}
 		});
 		
-		
+		logger.print(logs);
 		logger.print("Logs Seeded");
 
+	}
+	
+	public String normalizeDayandMonth(String day) {
+		int length = day.length();
+		if(length == 2) {
+			return day;
+		} else if (length == 1) {
+			return "0" + day;
+		} else {
+			return null;
+		}
+	}
+	
+	public String getDateString(Date date) {
+		DateFormat df = new SimpleDateFormat("MM/dd/yyyy"); 
+		String dateString = df.format(date);
+		return dateString;
+	}
+	
+	public Date getDateFromString(String str) {
+		String startDateString = "06/27/2007";
+		DateFormat df = new SimpleDateFormat("MM/dd/yyyy"); 
+		Date startDate;
+		try {
+		    startDate = df.parse(str);
+		    String newDateString = df.format(startDate);
+		    logger.print(newDateString);
+		} catch (ParseException e) {
+			logger.print("Error while parsing date");
+		    e.printStackTrace();
+		    startDate = null;
+		}
+		
+		return startDate;
 	}
 	
 	private Payload getActionPayload(Action action, User user) {
@@ -134,7 +197,7 @@ public class SeederService {
 						user.getEmail(), 
 						null, 
 						"Mastercard", 
-						"12345678910",
+						"1234*******CDEF",
 						200, 
 						"A purchase by " + user.getFirstName() + " " + user.getLastName() );
 			case LOGIN: 
@@ -145,7 +208,7 @@ public class SeederService {
 						null, 
 						null,
 						200, 
-						"A purchase by " + user.getFirstName() + " " + user.getLastName() );
+						"User " + user.getFirstName() + " " + user.getLastName() + "logged in" );
 			case LOGOUT: 
 				return new Payload(user.getFirstName(), 
 						user.getLastName(), 
@@ -154,23 +217,23 @@ public class SeederService {
 						null,
 						null,
 						200, 
-						"A purchase by " + user.getFirstName() + " " + user.getLastName() );
+						"User " + user.getFirstName() + " " + user.getLastName() + " logged out" );
 			case PAYMENT: 
 				return new Payload(user.getFirstName(), 
 						user.getLastName(), 
 						user.getEmail(), 
 						null, 
 						"Mastercard", 
-						"12345678910",
+						"1234*******CDEF",
 						2000, 
-						"A purchase by " + user.getFirstName() + " " + user.getLastName() );
+						"Payment made by " + user.getFirstName() + " " + user.getLastName() );
 			case TRANSFER: 
 				return new Payload(user.getFirstName(), 
 						user.getLastName(), 
 						user.getEmail(), 
 						null, 
 						"Mastercard",
-						"12345678910",
+						"1234*******CDEF",
 						5000, 
 						"Transfer by " + user.getFirstName() + " " + user.getLastName() );
 			case WITHDRAWAL: 
@@ -179,7 +242,7 @@ public class SeederService {
 						user.getEmail(), 
 						null, 
 						"Mastercard",
-						"12345678910",
+						encoder.encode("12345678910"),
 						200, 
 						"Withdrawal by " + user.getFirstName() + " " + user.getLastName() );
 			case CHARGES:
@@ -188,7 +251,7 @@ public class SeederService {
 						user.getEmail(), 
 						null, 
 						"Mastercard",
-						"12345678910",
+						"1234*******CDEF",
 						500, 
 						"500 Charges Debited from User: " + user.getFirstName() + " " + user.getLastName() );
 			default: return null;

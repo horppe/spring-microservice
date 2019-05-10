@@ -24,7 +24,7 @@ public class FirstSpringBootApplication implements ApplicationListener<Applicati
 		
 		System.out.println("Application Started");
 		
-		seeder.seedRandomUsersInDB(50);
+		seeder.seedRandomUsersInDB(10);
 		seeder.seedLogsInDB(5);
 	}
 }

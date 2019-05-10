@@ -1,5 +1,7 @@
 package com.horppe.models;
 
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -16,6 +18,8 @@ public class Log {
     public Action action;
     
     public Payload payload;
+    
+    public Date createdAt;
 
     public Log() {}
 
@@ -68,6 +72,20 @@ public class Log {
 	public void setPayload(Payload payload) {
 		this.payload = payload;
 	}
+	
+	
+
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+
+
+
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
+	}
+
+
 
 	@Override
     public String toString() {

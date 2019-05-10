@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.horppe.MongoDAL;
 import com.horppe.models.User;
+import com.horppe.services.MongoDAL;
 
 @RestController
 @RequestMapping("/user")
